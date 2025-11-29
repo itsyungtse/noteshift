@@ -4,7 +4,8 @@
   "description": "Move your notes easily between Notion and Apple Notes.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx ./src/cli.ts"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
   },
   "dependencies": {
     "@notionhq/client": "^5.4.0",
-    "inquirer": "^13.0.1"
+    "inquirer": "^13.0.1",
+    "tasuku": "^2.0.3"
   }
 }
