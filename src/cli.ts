@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import task from 'tasuku';
-import { NotionService } from './notion';
-import { blocksToHTML, createAppleNote } from './transfer';
+import { NotionService } from './notion.js';
+import { blocksToHTML, createAppleNote } from './transfer.js';
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 
@@ -26,7 +26,7 @@ async function main() {
         {
             type: 'input',
             name: 'pageId',
-            message: 'Enter the Notion page ID to transfer:',
+            message: 'Enter the Notion page URL to transfer:',
         },
         {
             type: 'input',

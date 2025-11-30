@@ -9,7 +9,10 @@ class NotionService {
 		});
 	}
 
-	async fetchPageContent(pageId: string) {
+	async fetchPageContent(url: string) {
+		let pageId = this.extractPageId(url)
+
+		if (!pageId) return []
 		const data: ListBlockChildrenResponse['results'] = [];
 
 		while (true) {
@@ -27,6 +30,11 @@ class NotionService {
 		}
 
 		return data;
+	}
+
+	private extractPageId(url: string): string | null {
+		const match = url.match(/[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+		return match ? match[0] : null;
 	}
 }
 
