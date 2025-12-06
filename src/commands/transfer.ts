@@ -1,8 +1,9 @@
+import { Client } from '@notionhq/client';
 import inquirer from 'inquirer';
 import { marked } from 'marked';
+import { NotionToMarkdown } from 'notion-to-md';
 import task from 'tasuku';
 import { ConfigManager } from '../config.js';
-import { NotionService } from '../notion.js';
 import { createAppleNote } from '../transfer.js';
 
 const config = new ConfigManager();
@@ -27,7 +28,8 @@ async function transferCommand(): Promise<void> {
         notionKey = integrationKey;
     }
 
-    const notion = new NotionService(notionKey);
+    const notionClient = new Client({ auth: notionKey });
+    const n2m = new NotionToMarkdown({ notionClient });
 
     const answers = await inquirer.prompt([
         {
@@ -48,9 +50,19 @@ async function transferCommand(): Promise<void> {
     const fetchPageContentTask = await task(
         'Fetching Notion page content...',
         async ({ setTitle }) => {
-            const response = await notion.fetchPageContent(pageId);
+            const pageIdMatch = pageId.match(
+                /[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+            );
+            const extractedPageId = pageIdMatch ? pageIdMatch[0] : null;
+
+            if (!extractedPageId) {
+                throw new Error('Invalid Notion page URL or ID');
+            }
+
+            const mdBlocks = await n2m.pageToMarkdown(extractedPageId);
+            const mdString = n2m.toMarkdownString(mdBlocks);
             setTitle('Successfully get Notion page content');
-            return response;
+            return mdString.parent;
         },
     );
 
