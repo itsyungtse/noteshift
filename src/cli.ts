@@ -1,63 +1,51 @@
-import inquirer from 'inquirer';
-import { marked } from 'marked';
-import task from 'tasuku';
-import { NotionService } from './notion.js';
-import { createAppleNote } from './transfer.js';
+#!/usr/bin/env node
 
-const NOTION_TOKEN = process.env.NOTION_TOKEN;
+import { Command } from 'commander';
+import { loginCommand, logoutCommand, statusCommand } from './commands/auth.js';
+import { transferCommand } from './commands/transfer.js';
 
-async function main() {
-    console.log('📦 Notion → Apple Notes Transfer CLI');
+const program = new Command();
 
-    let notionKey = NOTION_TOKEN;
-    if (!notionKey) {
-        const { integrationKey } = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'integrationKey',
-                message: 'Enter your Notion integration key:',
-            },
-        ]);
-        notionKey = integrationKey;
-    }
+program
+    .name('noteshift')
+    .description('Move your notes easily between Notion and Apple Notes')
+    .version('1.0.0');
 
-    const notion = new NotionService(notionKey);
+// auth 命令組
+const auth = program
+    .command('auth')
+    .description('Manage Notion authentication');
 
-    const answers = await inquirer.prompt([
-        {
-            type: 'input',
-            name: 'pageId',
-            message: 'Enter the Notion page URL to transfer:',
-        },
-        {
-            type: 'input',
-            name: 'noteTitle',
-            message:
-                'Enter the title for the Apple Note (leave empty to use Notion page name):',
-        },
-    ]);
+auth
+    .command('login')
+    .description('Login to Notion with an integration token')
+    .action(loginCommand);
 
-    const { pageId, noteTitle } = answers;
+auth
+    .command('logout')
+    .description('Logout and remove stored credentials')
+    .action(logoutCommand);
 
-    const fetchPageContentTask = await task(
-        'Fetching Notion page content...',
-        async ({ setTitle }) => {
-            const response = await notion.fetchPageContent(pageId);
-            setTitle('Successfully get Notion page content');
-            return response;
-        },
-    );
+auth
+    .command('status')
+    .description('Check authentication status')
+    .action(statusCommand);
 
-    const finalTitle = noteTitle || 'Imported from Notion';
+// transfer 命令
+program
+    .command('transfer')
+    .description('Transfer a Notion page to Apple Notes')
+    .action(transferCommand);
 
-    task(`📤 Creating Apple Note: ${finalTitle}`, async ({ setTitle }) => {
-        const text = fetchPageContentTask.result
-        if (typeof text !== 'string') return
-        const html = await marked(text)
-        createAppleNote(finalTitle, html);
+// 默認命令（向後兼容）
+program.action(() => {
+    console.log('📦 Notion → Apple Notes Transfer CLI\n');
+    console.log('Usage:');
+    console.log('  noteshift auth login    - Login with Notion integration token');
+    console.log('  noteshift auth status   - Check authentication status');
+    console.log('  noteshift auth logout   - Logout and clear credentials');
+    console.log('  noteshift transfer      - Transfer a Notion page to Apple Notes');
+    console.log('\nFor more information, run: noteshift --help\n');
+});
 
-        setTitle('Transfer complete!!');
-    });
-}
-
-main();
+program.parse();
