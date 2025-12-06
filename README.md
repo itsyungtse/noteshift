@@ -1,6 +1,6 @@
 # noteshift
 
-Move your notes easily between Notion and Apple Notes.
+Transfer notes between Notion and Apple Notes.
 
 ## Installation
 
@@ -13,42 +13,36 @@ pnpm add -g noteshift
 ## Quick Start
 
 ```bash
-# 1. Login with your Notion integration token
+# Login with your Notion integration token
 noteshift auth login
 
-# 2. Transfer a Notion page to Apple Notes
+# Transfer a Notion page to Apple Notes
 noteshift transfer
 
-# 3. Check authentication status
+# Check authentication status
 noteshift auth status
 
-# 4. Logout when done
+# Logout
 noteshift auth logout
 ```
-
-## Prerequisites
-
-1. **Notion Integration Token**: Create an internal integration at [Notion Integrations](https://www.notion.so/profile/integrations/)
-2. **macOS with Apple Notes**: This tool uses AppleScript to interact with Apple Notes
-3. **Share Pages with Integration**: Manually share the Notion pages you want to transfer with your integration
 
 ## Usage
 
 ### Authentication
 
-Login once and the token will be securely stored in `~/.config/noteshift/config.json`:
+Login (token stored in `~/.config/noteshift/config.json`):
 
 ```bash
 noteshift auth login
 ```
 
-Check your current authentication status:
+Check status:
 
 ```bash
 noteshift auth status
 ```
 
-Logout and remove stored credentials:
+Logout:
 
 ```bash
 noteshift auth logout
@@ -56,37 +50,29 @@ noteshift auth logout
 
 ### Transfer Notes
 
-Transfer a Notion page to Apple Notes:
-
 ```bash
 noteshift transfer
 ```
 
-You'll be prompted to:
-1. Enter the Notion page URL
-2. (Optional) Enter a custom title for the Apple Note
+Prompts for:
+1. Notion page URL
+2. Custom title (optional)
 
-The tool will:
-- Fetch the Notion page content
-- Convert it to Markdown
-- Create a new note in Apple Notes under the "Notion Transfer" folder
+Creates a note in Apple Notes under the "Notion Transfer" folder
 
 ### Token Priority
 
 The tool looks for your Notion token in the following order:
 1. Stored configuration file (`~/.config/noteshift/config.json`)
 2. Environment variable (`NOTION_TOKEN`)
-3. Interactive prompt (fallback)
+### Token Priority
 
-## Programmatic Usage
-
-You can also use noteshift as a library in your Node.js projects:
-
+1. Configuration file (`~/.config/noteshift/config.json`)
+2. Environment variable (`NOTION_TOKEN`)
+3. Interactive prompt
 ```typescript
 import { ConfigManager, NotionService, createAppleNote, validateNotionToken } from 'noteshift';
-
-// Configuration management
-const config = new ConfigManager();
+## Programmatic Usage
 config.setToken('secret_xxx');
 
 // Validate a token
