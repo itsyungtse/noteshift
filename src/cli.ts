@@ -1,7 +1,8 @@
 import inquirer from 'inquirer';
+import { marked } from 'marked';
 import task from 'tasuku';
 import { NotionService } from './notion.js';
-import { blocksToHTML, createAppleNote } from './transfer.js';
+import { createAppleNote } from './transfer.js';
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 
@@ -47,19 +48,13 @@ async function main() {
         },
     );
 
-    const blocksToHTMLTask = await task(
-        'Converting Notion content to HTML...',
-        async ({ setTitle }) => {
-            const response = blocksToHTML(fetchPageContentTask.result);
-            setTitle('Converted Notion content to HTML successfully.');
-            return response;
-        },
-    );
-
     const finalTitle = noteTitle || 'Imported from Notion';
 
     task(`📤 Creating Apple Note: ${finalTitle}`, async ({ setTitle }) => {
-        createAppleNote(finalTitle, blocksToHTMLTask.result);
+        const text = fetchPageContentTask.result
+        if (typeof text !== 'string') return
+        const html = await marked(text)
+        createAppleNote(finalTitle, html);
 
         setTitle('Transfer complete!!');
     });
