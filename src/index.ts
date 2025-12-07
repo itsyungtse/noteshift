@@ -1,4 +1,3 @@
-
 export { loginCommand, logoutCommand, statusCommand } from './commands/auth.js';
 export { transferCommand } from './commands/transfer.js';
 export { ConfigManager } from './config.js';
